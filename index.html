@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMM1 - Cvičení 5 | Test</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #2d5016, #4a8c2a);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        header h1 { font-size: 1.6em; margin-bottom: 6px; }
+        header p { opacity: 0.9; font-size: 0.95em; }
+        .progress-bar {
+            background: #ddd;
+            border-radius: 10px;
+            height: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #4a8c2a, #6abf40);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+        .progress-text {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .question-card h2 {
+            font-size: 1.1em;
+            color: #2d5016;
+            margin-bottom: 6px;
+        }
+        .question-card p.question-text {
+            font-size: 1.05em;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+        .options { list-style: none; }
+        .options li {
+            background: #f7f9fb;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.98em;
+        }
+        .options li:hover { border-color: #4a8c2a; background: #f0f8e8; }
+        .options li.selected { border-color: #4a8c2a; background: #e8f5d8; font-weight: 500; }
+        .options li.correct { border-color: #2d8c2a; background: #d4edda; }
+        .options li.incorrect { border-color: #c0392b; background: #f8d7da; }
+        .options li.disabled { pointer-events: none; }
+        .explanation {
+            margin-top: 14px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.93em;
+            line-height: 1.5;
+            display: none;
+        }
+        .explanation.show { display: block; }
+        .explanation.correct-exp { background: #d4edda; border-left: 4px solid #2d8c2a; }
+        .explanation.incorrect-exp { background: #f8d7da; border-left: 4px solid #c0392b; }
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: #4a8c2a;
+            color: white;
+        }
+        .btn-primary:hover { background: #3a7020; }
+        .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+        .btn-restart {
+            background: #2d5016;
+            color: white;
+        }
+        .btn-restart:hover { background: #1e3a0e; }
+        .nav-buttons { text-align: center; margin-top: 10px; }
+        .results {
+            background: white;
+            border-radius: 12px;
+            padding: 36px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .results h2 { font-size: 1.5em; margin-bottom: 12px; color: #2d5016; }
+        .score-circle {
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 20px auto;
+            font-size: 2.2em; font-weight: 700;
+            color: white;
+        }
+        .score-great { background: linear-gradient(135deg, #2d8c2a, #6abf40); }
+        .score-ok { background: linear-gradient(135deg, #e67e22, #f1c40f); }
+        .score-bad { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+        .results p { font-size: 1.1em; margin: 10px 0; }
+        .review-item {
+            text-align: left;
+            background: #f7f9fb;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            border-left: 4px solid #ccc;
+        }
+        .review-item.review-correct { border-left-color: #2d8c2a; }
+        .review-item.review-incorrect { border-left-color: #c0392b; }
+        .review-item .q-label { font-weight: 600; margin-bottom: 4px; }
+        .review-item .r-detail { font-size: 0.9em; color: #555; }
+        .hidden { display: none; }
+        @media (max-width: 600px) {
+            .container { padding: 12px; }
+            header { padding: 20px 14px; }
+            header h1 { font-size: 1.3em; }
+            .question-card { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>EMM1 - Cvičení 5</h1>
+            <p>Interpretace výsledků LP &bull; Duální model &bull; CZU</p>
+        </header>
+
+        <div id="quiz-section">
+            <div class="progress-text" id="progress-text">Otázka 1 / 15</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="question-card" id="question-card">
+                <h2 id="q-number">Otázka 1</h2>
+                <p class="question-text" id="q-text"></p>
+                <ul class="options" id="options"></ul>
+                <div class="explanation" id="explanation"></div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-primary" id="next-btn" disabled onclick="nextQuestion()">Další otázka</button>
+            </div>
+        </div>
+
+        <div id="results-section" class="results hidden">
+            <h2>Výsledky testu</h2>
+            <div class="score-circle" id="score-circle"></div>
+            <p id="result-text"></p>
+            <div id="review-list"></div>
+            <br>
+            <button class="btn btn-restart" onclick="restartQuiz()">Zkusit znovu</button>
+        </div>
+    </div>
+
+<script>
+const questions = [
+    {
+        q: "Jaký je cíl úlohy lineárního programování v příkladu s mlékárnou?",
+        options: [
+            "Minimalizace nákladů na mléko",
+            "Maximalizace celkových tržeb",
+            "Minimalizace spotřeby mléka",
+            "Maximalizace počtu vyrobených balení"
+        ],
+        correct: 1,
+        explanation: "Cílem je maximalizace celkových tržeb (z = 20x1 + 10x2 + 25x3 + 40x4 → MAX)."
+    },
+    {
+        q: "Kolik litrů mléka má mlékárna denně k dispozici (maximální kapacita)?",
+        options: ["100 l", "250 l", "400 l", "500 l"],
+        correct: 2,
+        explanation: "Maximální denní kapacita mlékárny je 400 litrů mléka."
+    },
+    {
+        q: "Kolik litrů mléka je potřeba na výrobu jednoho balení jahodového jogurtu?",
+        options: ["0,5 l", "1 l", "1,5 l", "2 l"],
+        correct: 2,
+        explanation: "Na jedno balení jahodového jogurtu (360 g) je potřeba 1,5 l mléka."
+    },
+    {
+        q: "Který výrobek má nejvyšší cenu za balení?",
+        options: [
+            "Jahodový jogurt (20 Kč)",
+            "Višňový jogurt (10 Kč)",
+            "Tvarohový krém (25 Kč)",
+            "Pařené válečky (40 Kč)"
+        ],
+        correct: 3,
+        explanation: "Pařené válečky mají nejvyšší cenu 40 Kč za balení."
+    },
+    {
+        q: "Jak zní omezující podmínka pro minimální počet jogurtů?",
+        options: [
+            "x1 + x2 <= 100",
+            "x1 + x2 >= 100",
+            "x1 + x2 + x3 + x4 >= 100",
+            "x1 + x2 = 100"
+        ],
+        correct: 1,
+        explanation: "Je požadováno vyrobit minimálně 100 balení jogurtů (bez rozlišení): x1 + x2 >= 100."
+    },
+    {
+        q: "Co znamená proměnná d1 v simplexové tabulce?",
+        options: [
+            "Přídavná proměnná k podmínce jogurtů",
+            "Doplňková proměnná k podmínce kapacity mléka (nevyužité mléko)",
+            "Umělá proměnná",
+            "Duální proměnná"
+        ],
+        correct: 1,
+        explanation: "d1 je doplňková (slack) proměnná přidaná k podmínce typu <=. Představuje nevyužité mléko z kapacity 400 l."
+    },
+    {
+        q: "Proč se u podmínky x1 + x2 >= 100 zavádí jak proměnná d2, tak proměnná p2?",
+        options: [
+            "d2 je doplňková a p2 je umělá proměnná pro podmínku typu >=",
+            "Obě jsou doplňkové proměnné",
+            "d2 je umělá a p2 je doplňková",
+            "Zavádí se pouze pro urychlení výpočtu"
+        ],
+        correct: 0,
+        explanation: "U podmínky >= se odečítá doplňková proměnná d2 a přičítá umělá proměnná p2 pro zajištění výchozí báze: x1 + x2 - d2 + p2 = 100."
+    },
+    {
+        q: "Jakou penalizaci (koeficient v účelové funkci) má umělá proměnná p2 v metodě velkého M?",
+        options: [
+            "0",
+            "+100",
+            "-100 (velké M se záporným znaménkem)",
+            "+1000"
+        ],
+        correct: 2,
+        explanation: "Při maximalizaci se umělé proměnné přiřadí velký záporný koeficient (-M = -100), aby byla vytlačena z báze."
+    },
+    {
+        q: "Jaká je optimální hodnota účelové funkce (maximální tržby)?",
+        options: ["10 000 Kč", "12 000 Kč", "15 000 Kč", "20 000 Kč"],
+        correct: 2,
+        explanation: "Optimální hodnota z = 15 000 Kč. To je maximum tržeb při daných omezeních."
+    },
+    {
+        q: "Jaký je vektor bázického řešení (optimální výrobní plán)?",
+        options: [
+            "x1=100, x2=0, x3=0, x4=250",
+            "x1=0, x2=100, x3=0, x4=350",
+            "x1=100, x2=100, x3=0, x4=0",
+            "x1=0, x2=0, x3=100, x4=300"
+        ],
+        correct: 1,
+        explanation: "Optimální řešení: x2=100 (višňový jogurt), x4=350 (pařené válečky), ostatní = 0. Vektor: (0, 100, 0, 350, 0, 0, 0)."
+    },
+    {
+        q: "Co říká simplexové kritérium optimality (řádek zj - cj) v poslední tabulce?",
+        options: [
+            "Všechny hodnoty musí být záporné",
+            "Všechny hodnoty musí být nezáporné (>= 0) pro maximalizaci",
+            "Všechny hodnoty musí být rovny nule",
+            "Alespoň jedna hodnota musí být záporná"
+        ],
+        correct: 1,
+        explanation: "Při maximalizaci je řešení optimální, pokud jsou všechny hodnoty zj - cj >= 0 (nezáporné)."
+    },
+    {
+        q: "Kolik omezujících podmínek má duální model, když primární model má 4 proměnné?",
+        options: ["2", "4", "6", "8"],
+        correct: 1,
+        explanation: "Počet omezujících podmínek duálního modelu odpovídá počtu proměnných primárního modelu, tedy 4."
+    },
+    {
+        q: "Co vyjadřuje duální proměnná y1 (stínová cena mléka)?",
+        options: [
+            "Skutečnou tržní cenu mléka",
+            "O kolik se změní účelová funkce při zvýšení kapacity mléka o 1 litr",
+            "Počet litrů spotřebovaného mléka",
+            "Cenu jednoho jogurtu"
+        ],
+        correct: 1,
+        explanation: "Duální proměnná y1 (stínová cena) říká, o kolik Kč se změní maximální tržby, pokud se kapacita mléka zvýší o 1 litr. y1 = 40 Kč/l."
+    },
+    {
+        q: "Jaký je vztah mezi hodnotou účelové funkce primárního a duálního modelu v optimu?",
+        options: [
+            "Primární je vždy větší než duální",
+            "Duální je vždy větší než primární",
+            "Jsou si rovny (věta o dualitě)",
+            "Nemají žádný vztah"
+        ],
+        correct: 2,
+        explanation: "Podle věty o silné dualitě se optimální hodnoty účelových funkcí primárního (z*) a duálního (f*) modelu rovnají: z* = f* = 15 000 Kč."
+    },
+    {
+        q: "Pokud je duální model MIN a primární je MAX, jaký je směr nerovností v omezujících podmínkách duálního modelu?",
+        options: [
+            "Všechny jsou typu <=",
+            "Všechny jsou typu >=",
+            "Jsou typu = (rovnosti)",
+            "Záleží na typu primárních podmínek"
+        ],
+        correct: 1,
+        explanation: "Při přechodu z MAX primárního na MIN duální model se nerovnosti otáčejí: podmínky duálního modelu jsou typu >= (pro standardní proměnné primárního modelu)."
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answers = [];
+let answered = false;
+
+function renderQuestion() {
+    const q = questions[currentQuestion];
+    document.getElementById('q-number').textContent = `Otázka ${currentQuestion + 1}`;
+    document.getElementById('q-text').textContent = q.q;
+    document.getElementById('progress-text').textContent = `Otázka ${currentQuestion + 1} / ${questions.length}`;
+    document.getElementById('progress-fill').style.width = `${(currentQuestion / questions.length) * 100}%`;
+
+    const optionsEl = document.getElementById('options');
+    optionsEl.innerHTML = '';
+    q.options.forEach((opt, i) => {
+        const li = document.createElement('li');
+        li.textContent = opt;
+        li.onclick = () => selectAnswer(i);
+        optionsEl.appendChild(li);
+    });
+
+    document.getElementById('explanation').className = 'explanation';
+    document.getElementById('explanation').textContent = '';
+    document.getElementById('next-btn').disabled = true;
+    document.getElementById('next-btn').textContent =
+        currentQuestion === questions.length - 1 ? 'Zobrazit výsledky' : 'Další otázka';
+    answered = false;
+}
+
+function selectAnswer(index) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentQuestion];
+    const isCorrect = index === q.correct;
+    if (isCorrect) score++;
+    answers.push({ question: currentQuestion, selected: index, correct: q.correct, isCorrect });
+
+    const lis = document.querySelectorAll('#options li');
+    lis.forEach((li, i) => {
+        li.classList.add('disabled');
+        if (i === q.correct) li.classList.add('correct');
+        if (i === index && !isCorrect) li.classList.add('incorrect');
+    });
+
+    const expEl = document.getElementById('explanation');
+    expEl.textContent = (isCorrect ? 'Správně! ' : 'Špatně. ') + q.explanation;
+    expEl.className = 'explanation show ' + (isCorrect ? 'correct-exp' : 'incorrect-exp');
+
+    document.getElementById('next-btn').disabled = false;
+}
+
+function nextQuestion() {
+    currentQuestion++;
+    if (currentQuestion >= questions.length) {
+        showResults();
+    } else {
+        renderQuestion();
+    }
+}
+
+function showResults() {
+    document.getElementById('quiz-section').classList.add('hidden');
+    const resultsEl = document.getElementById('results-section');
+    resultsEl.classList.remove('hidden');
+
+    const pct = Math.round((score / questions.length) * 100);
+    const circle = document.getElementById('score-circle');
+    circle.textContent = `${score}/${questions.length}`;
+    circle.className = 'score-circle ' +
+        (pct >= 70 ? 'score-great' : pct >= 40 ? 'score-ok' : 'score-bad');
+
+    let msg = pct >= 90 ? 'Vynikající! Skvěle ovládáte LP.' :
+              pct >= 70 ? 'Velmi dobře! Máte solidní znalosti.' :
+              pct >= 50 ? 'Dobrý základ, ale zkuste si některé pojmy zopakovat.' :
+              'Doporučujeme si materiály prostudovat znovu.';
+    document.getElementById('result-text').textContent = `${pct} % — ${msg}`;
+
+    const reviewEl = document.getElementById('review-list');
+    reviewEl.innerHTML = '<h3 style="text-align:left;margin:16px 0 8px;">Přehled odpovědí:</h3>';
+    answers.forEach(a => {
+        const q = questions[a.question];
+        const div = document.createElement('div');
+        div.className = 'review-item ' + (a.isCorrect ? 'review-correct' : 'review-incorrect');
+        div.innerHTML = `<div class="q-label">${a.question + 1}. ${q.q}</div>
+            <div class="r-detail">${a.isCorrect ? 'Správně' : 'Vaše odpověď: ' + q.options[a.selected] + '<br>Správně: ' + q.options[q.correct]}</div>`;
+        reviewEl.appendChild(div);
+    });
+}
+
+function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    answers = [];
+    document.getElementById('results-section').classList.add('hidden');
+    document.getElementById('quiz-section').classList.remove('hidden');
+    renderQuestion();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
