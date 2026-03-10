@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMM1 - Cvičení 5 | Test</title>
+    <title>EMM1 - Vstupní test | Cvičení 5</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -12,11 +12,7 @@
             color: #333;
             min-height: 100vh;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         header {
             background: linear-gradient(135deg, #2d5016, #4a8c2a);
             color: white;
@@ -27,42 +23,44 @@
         }
         header h1 { font-size: 1.6em; margin-bottom: 6px; }
         header p { opacity: 0.9; font-size: 0.95em; }
-        .progress-bar {
-            background: #ddd;
-            border-radius: 10px;
-            height: 12px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            background: linear-gradient(90deg, #4a8c2a, #6abf40);
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.4s ease;
-        }
-        .progress-text {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 0.9em;
-            color: #666;
-        }
-        .question-card {
+        .card {
             background: white;
             border-radius: 12px;
             padding: 28px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             margin-bottom: 20px;
         }
-        .question-card h2 {
+        .card h2 { font-size: 1.2em; color: #2d5016; margin-bottom: 16px; }
+
+        /* Login */
+        .login-form { text-align: center; }
+        .login-form label { display: block; font-size: 1.05em; margin-bottom: 10px; color: #555; }
+        .login-form input {
+            width: 100%; max-width: 400px;
+            padding: 14px 18px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
             font-size: 1.1em;
-            color: #2d5016;
-            margin-bottom: 6px;
+            outline: none;
+            transition: border-color 0.2s;
         }
-        .question-card p.question-text {
-            font-size: 1.05em;
-            margin-bottom: 18px;
+        .login-form input:focus { border-color: #4a8c2a; }
+        .login-info {
+            margin-top: 16px;
+            font-size: 0.9em;
+            color: #888;
             line-height: 1.5;
         }
+
+        /* Progress */
+        .progress-bar { background: #ddd; border-radius: 10px; height: 12px; margin-bottom: 20px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #4a8c2a, #6abf40); height: 100%; border-radius: 10px; transition: width 0.4s ease; }
+        .progress-text { text-align: center; margin-bottom: 10px; font-size: 0.9em; color: #666; }
+        .student-name-bar { text-align: center; font-size: 0.85em; color: #888; margin-bottom: 6px; }
+
+        /* Question */
+        .question-card h2 { margin-bottom: 6px; }
+        .question-card p.question-text { font-size: 1.05em; margin-bottom: 18px; line-height: 1.5; }
         .options { list-style: none; }
         .options li {
             background: #f7f9fb;
@@ -76,20 +74,8 @@
         }
         .options li:hover { border-color: #4a8c2a; background: #f0f8e8; }
         .options li.selected { border-color: #4a8c2a; background: #e8f5d8; font-weight: 500; }
-        .options li.correct { border-color: #2d8c2a; background: #d4edda; }
-        .options li.incorrect { border-color: #c0392b; background: #f8d7da; }
-        .options li.disabled { pointer-events: none; }
-        .explanation {
-            margin-top: 14px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 0.93em;
-            line-height: 1.5;
-            display: none;
-        }
-        .explanation.show { display: block; }
-        .explanation.correct-exp { background: #d4edda; border-left: 4px solid #2d8c2a; }
-        .explanation.incorrect-exp { background: #f8d7da; border-left: 4px solid #c0392b; }
+
+        /* Buttons */
         .btn {
             display: inline-block;
             padding: 12px 32px;
@@ -100,28 +86,16 @@
             transition: all 0.2s;
             font-weight: 600;
         }
-        .btn-primary {
-            background: #4a8c2a;
-            color: white;
-        }
+        .btn-primary { background: #4a8c2a; color: white; }
         .btn-primary:hover { background: #3a7020; }
         .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
-        .btn-restart {
-            background: #2d5016;
-            color: white;
-        }
-        .btn-restart:hover { background: #1e3a0e; }
         .nav-buttons { text-align: center; margin-top: 10px; }
-        .results {
-            background: white;
-            border-radius: 12px;
-            padding: 36px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            text-align: center;
-        }
+
+        /* Results */
+        .results { text-align: center; }
         .results h2 { font-size: 1.5em; margin-bottom: 12px; color: #2d5016; }
         .score-circle {
-            width: 140px; height: 140px;
+            width: 150px; height: 150px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             margin: 20px auto;
@@ -144,67 +118,73 @@
         .review-item.review-incorrect { border-left-color: #c0392b; }
         .review-item .q-label { font-weight: 600; margin-bottom: 4px; }
         .review-item .r-detail { font-size: 0.9em; color: #555; }
+
         .hidden { display: none; }
-        .nav-links {
-            text-align: center;
-            margin-bottom: 16px;
-        }
-        .nav-links a {
-            color: #4a8c2a;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95em;
-            padding: 8px 16px;
-            border: 2px solid #4a8c2a;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        .nav-links a:hover {
-            background: #4a8c2a;
-            color: white;
-        }
+        .already-done { text-align: center; padding: 40px 20px; }
+        .already-done p { font-size: 1.05em; margin: 10px 0; color: #555; }
+
         @media (max-width: 600px) {
             .container { padding: 12px; }
             header { padding: 20px 14px; }
             header h1 { font-size: 1.3em; }
-            .question-card { padding: 18px; }
+            .card { padding: 18px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>EMM1 - Cvičení 5</h1>
-            <p>Interpretace výsledků LP &bull; Duální model &bull; CZU</p>
+            <h1>EMM1 - Vstupní test</h1>
+            <p>Cvičení 5 &bull; Lineární programování &bull; CZU</p>
         </header>
 
-        <div class="nav-links">
-            <a href="stats.html">Statistiky</a>
+        <!-- Login -->
+        <div id="login-section" class="card">
+            <div class="login-form">
+                <h2>Zadejte své jméno</h2>
+                <label for="student-name">Jméno a příjmení</label>
+                <input type="text" id="student-name" placeholder="Jan Novák" autocomplete="name">
+                <div class="login-info">
+                    Test obsahuje 15 otázek z podkladů ke cvičení 5.<br>
+                    Na každou otázku je právě jedna správná odpověď.<br>
+                    Výsledek uvidíte až po dokončení celého testu.
+                </div>
+                <br>
+                <button class="btn btn-primary" id="start-btn" onclick="startQuiz()">Zahájit test</button>
+            </div>
         </div>
 
-        <div id="quiz-section">
-            <div class="progress-text" id="progress-text">Otázka 1 / 15</div>
+        <!-- Already done -->
+        <div id="already-done-section" class="card hidden">
+            <div class="already-done">
+                <h2>Test jste již absolvovali</h2>
+                <p id="already-done-info"></p>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div id="quiz-section" class="hidden">
+            <div class="student-name-bar" id="student-name-bar"></div>
+            <div class="progress-text" id="progress-text"></div>
             <div class="progress-bar">
                 <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
             </div>
-            <div class="question-card" id="question-card">
-                <h2 id="q-number">Otázka 1</h2>
+            <div class="card question-card">
+                <h2 id="q-number"></h2>
                 <p class="question-text" id="q-text"></p>
                 <ul class="options" id="options"></ul>
-                <div class="explanation" id="explanation"></div>
             </div>
             <div class="nav-buttons">
                 <button class="btn btn-primary" id="next-btn" disabled onclick="nextQuestion()">Další otázka</button>
             </div>
         </div>
 
-        <div id="results-section" class="results hidden">
-            <h2>Výsledky testu</h2>
+        <!-- Results -->
+        <div id="results-section" class="card results hidden">
+            <h2 id="results-title">Výsledky testu</h2>
             <div class="score-circle" id="score-circle"></div>
             <p id="result-text"></p>
             <div id="review-list"></div>
-            <br>
-            <button class="btn btn-restart" onclick="restartQuiz()">Zkusit znovu</button>
         </div>
     </div>
 
@@ -359,121 +339,139 @@ const questions = [
 
 let currentQuestion = 0;
 let score = 0;
-let answers = [];
-let answered = false;
+let selectedAnswers = new Array(questions.length).fill(-1);
+let studentName = '';
+
+// Check if student already completed the test today
+function checkAlreadyDone() {
+    const history = JSON.parse(localStorage.getItem('emm1_quiz_results') || '[]');
+    const today = new Date().toISOString().slice(0, 10);
+    const todayResult = history.find(r => r.date && r.date.startsWith(today));
+    if (todayResult) {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('already-done-section').classList.remove('hidden');
+        document.getElementById('already-done-info').innerHTML =
+            `<strong>${todayResult.name}</strong><br>Skóre: ${todayResult.score}/${todayResult.total} (${todayResult.pct} %)`;
+    }
+}
+
+function startQuiz() {
+    studentName = document.getElementById('student-name').value.trim();
+    if (!studentName) {
+        document.getElementById('student-name').style.borderColor = '#c0392b';
+        document.getElementById('student-name').placeholder = 'Vyplňte prosím jméno!';
+        return;
+    }
+    document.getElementById('login-section').classList.add('hidden');
+    document.getElementById('quiz-section').classList.remove('hidden');
+    document.getElementById('student-name-bar').textContent = studentName;
+    renderQuestion();
+}
+
+// Allow Enter key to start
+document.getElementById('student-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') startQuiz();
+});
 
 function renderQuestion() {
     const q = questions[currentQuestion];
     document.getElementById('q-number').textContent = `Otázka ${currentQuestion + 1}`;
     document.getElementById('q-text').textContent = q.q;
     document.getElementById('progress-text').textContent = `Otázka ${currentQuestion + 1} / ${questions.length}`;
-    document.getElementById('progress-fill').style.width = `${(currentQuestion / questions.length) * 100}%`;
+    document.getElementById('progress-fill').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
 
     const optionsEl = document.getElementById('options');
     optionsEl.innerHTML = '';
     q.options.forEach((opt, i) => {
         const li = document.createElement('li');
         li.textContent = opt;
+        if (selectedAnswers[currentQuestion] === i) li.classList.add('selected');
         li.onclick = () => selectAnswer(i);
         optionsEl.appendChild(li);
     });
 
-    document.getElementById('explanation').className = 'explanation';
-    document.getElementById('explanation').textContent = '';
-    document.getElementById('next-btn').disabled = true;
-    document.getElementById('next-btn').textContent =
-        currentQuestion === questions.length - 1 ? 'Zobrazit výsledky' : 'Další otázka';
-    answered = false;
+    document.getElementById('next-btn').disabled = selectedAnswers[currentQuestion] === -1;
+    const isLast = currentQuestion === questions.length - 1;
+    document.getElementById('next-btn').textContent = isLast ? 'Odeslat test' : 'Další otázka';
 }
 
 function selectAnswer(index) {
-    if (answered) return;
-    answered = true;
-
-    const q = questions[currentQuestion];
-    const isCorrect = index === q.correct;
-    if (isCorrect) score++;
-    answers.push({ question: currentQuestion, selected: index, correct: q.correct, isCorrect });
-
+    selectedAnswers[currentQuestion] = index;
     const lis = document.querySelectorAll('#options li');
     lis.forEach((li, i) => {
-        li.classList.add('disabled');
-        if (i === q.correct) li.classList.add('correct');
-        if (i === index && !isCorrect) li.classList.add('incorrect');
+        li.classList.toggle('selected', i === index);
     });
-
-    const expEl = document.getElementById('explanation');
-    expEl.textContent = (isCorrect ? 'Správně! ' : 'Špatně. ') + q.explanation;
-    expEl.className = 'explanation show ' + (isCorrect ? 'correct-exp' : 'incorrect-exp');
-
     document.getElementById('next-btn').disabled = false;
 }
 
 function nextQuestion() {
-    currentQuestion++;
-    if (currentQuestion >= questions.length) {
-        showResults();
+    if (currentQuestion === questions.length - 1) {
+        submitTest();
     } else {
+        currentQuestion++;
         renderQuestion();
     }
 }
 
-function saveResult() {
-    const history = JSON.parse(localStorage.getItem('emm1_quiz_results') || '[]');
-    const perQuestion = questions.map((q, i) => {
-        const a = answers.find(a => a.question === i);
-        return { correct: a ? a.isCorrect : false, selected: a ? a.selected : -1 };
+function submitTest() {
+    // Calculate score
+    score = 0;
+    const answerDetails = questions.map((q, i) => {
+        const isCorrect = selectedAnswers[i] === q.correct;
+        if (isCorrect) score++;
+        return { question: i, selected: selectedAnswers[i], correct: q.correct, isCorrect };
     });
+
+    // Save to localStorage
+    const history = JSON.parse(localStorage.getItem('emm1_quiz_results') || '[]');
     history.push({
+        name: studentName,
         date: new Date().toISOString(),
         score: score,
         total: questions.length,
         pct: Math.round((score / questions.length) * 100),
-        answers: perQuestion
+        answers: answerDetails.map(a => ({ correct: a.isCorrect, selected: a.selected }))
     });
     localStorage.setItem('emm1_quiz_results', JSON.stringify(history));
+
+    showResults(answerDetails);
 }
 
-function showResults() {
-    saveResult();
+function showResults(answerDetails) {
     document.getElementById('quiz-section').classList.add('hidden');
-    const resultsEl = document.getElementById('results-section');
-    resultsEl.classList.remove('hidden');
+    document.getElementById('results-section').classList.remove('hidden');
 
     const pct = Math.round((score / questions.length) * 100);
+
+    document.getElementById('results-title').textContent = `Výsledky — ${studentName}`;
+
     const circle = document.getElementById('score-circle');
     circle.textContent = `${score}/${questions.length}`;
     circle.className = 'score-circle ' +
         (pct >= 70 ? 'score-great' : pct >= 40 ? 'score-ok' : 'score-bad');
 
-    let msg = pct >= 90 ? 'Vynikající! Skvěle ovládáte LP.' :
-              pct >= 70 ? 'Velmi dobře! Máte solidní znalosti.' :
-              pct >= 50 ? 'Dobrý základ, ale zkuste si některé pojmy zopakovat.' :
-              'Doporučujeme si materiály prostudovat znovu.';
+    let msg = pct >= 90 ? 'Vynikající!' :
+              pct >= 70 ? 'Velmi dobře!' :
+              pct >= 50 ? 'Dobrý základ.' :
+              'Doporučujeme prostudovat materiály.';
     document.getElementById('result-text').textContent = `${pct} % — ${msg}`;
 
     const reviewEl = document.getElementById('review-list');
     reviewEl.innerHTML = '<h3 style="text-align:left;margin:16px 0 8px;">Přehled odpovědí:</h3>';
-    answers.forEach(a => {
+    answerDetails.forEach(a => {
         const q = questions[a.question];
         const div = document.createElement('div');
         div.className = 'review-item ' + (a.isCorrect ? 'review-correct' : 'review-incorrect');
         div.innerHTML = `<div class="q-label">${a.question + 1}. ${q.q}</div>
-            <div class="r-detail">${a.isCorrect ? 'Správně' : 'Vaše odpověď: ' + q.options[a.selected] + '<br>Správně: ' + q.options[q.correct]}</div>`;
+            <div class="r-detail">${a.isCorrect
+                ? 'Správně: ' + q.options[q.correct]
+                : 'Vaše odpověď: ' + q.options[a.selected] + '<br>Správně: ' + q.options[q.correct]
+            }<br><em>${q.explanation}</em></div>`;
         reviewEl.appendChild(div);
     });
 }
 
-function restartQuiz() {
-    currentQuestion = 0;
-    score = 0;
-    answers = [];
-    document.getElementById('results-section').classList.add('hidden');
-    document.getElementById('quiz-section').classList.remove('hidden');
-    renderQuestion();
-}
-
-renderQuestion();
+checkAlreadyDone();
 </script>
 </body>
 </html>
