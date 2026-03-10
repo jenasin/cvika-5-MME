@@ -145,6 +145,24 @@
         .review-item .q-label { font-weight: 600; margin-bottom: 4px; }
         .review-item .r-detail { font-size: 0.9em; color: #555; }
         .hidden { display: none; }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .nav-links a {
+            color: #4a8c2a;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            padding: 8px 16px;
+            border: 2px solid #4a8c2a;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover {
+            background: #4a8c2a;
+            color: white;
+        }
         @media (max-width: 600px) {
             .container { padding: 12px; }
             header { padding: 20px 14px; }
@@ -159,6 +177,10 @@
             <h1>EMM1 - Cvičení 5</h1>
             <p>Interpretace výsledků LP &bull; Duální model &bull; CZU</p>
         </header>
+
+        <div class="nav-links">
+            <a href="stats.html">Statistiky</a>
+        </div>
 
         <div id="quiz-section">
             <div class="progress-text" id="progress-text">Otázka 1 / 15</div>
@@ -396,7 +418,24 @@ function nextQuestion() {
     }
 }
 
+function saveResult() {
+    const history = JSON.parse(localStorage.getItem('emm1_quiz_results') || '[]');
+    const perQuestion = questions.map((q, i) => {
+        const a = answers.find(a => a.question === i);
+        return { correct: a ? a.isCorrect : false, selected: a ? a.selected : -1 };
+    });
+    history.push({
+        date: new Date().toISOString(),
+        score: score,
+        total: questions.length,
+        pct: Math.round((score / questions.length) * 100),
+        answers: perQuestion
+    });
+    localStorage.setItem('emm1_quiz_results', JSON.stringify(history));
+}
+
 function showResults() {
+    saveResult();
     document.getElementById('quiz-section').classList.add('hidden');
     const resultsEl = document.getElementById('results-section');
     resultsEl.classList.remove('hidden');

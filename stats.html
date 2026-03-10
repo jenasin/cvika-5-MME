@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMM1 - Statistiky | CZU</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #333;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        header {
+            background: linear-gradient(135deg, #2d5016, #4a8c2a);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        header h1 { font-size: 1.6em; margin-bottom: 6px; }
+        header p { opacity: 0.9; font-size: 0.95em; }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            color: #4a8c2a;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            padding: 8px 16px;
+            border: 2px solid #4a8c2a;
+            border-radius: 8px;
+            transition: all 0.2s;
+            margin: 0 6px;
+        }
+        .nav-links a:hover { background: #4a8c2a; color: white; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            font-size: 1.2em;
+            color: #2d5016;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #e8f5d8;
+            padding-bottom: 8px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        .stat-box {
+            background: #f7f9fb;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #e0e6ed;
+        }
+        .stat-box .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2d5016;
+        }
+        .stat-box .stat-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 4px;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            overflow-x: auto;
+        }
+        canvas { max-width: 100%; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92em;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e6ed;
+        }
+        th {
+            background: #f0f4f8;
+            font-weight: 600;
+            color: #2d5016;
+        }
+        tr:hover td { background: #f7f9fb; }
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .badge-great { background: #d4edda; color: #155724; }
+        .badge-ok { background: #fff3cd; color: #856404; }
+        .badge-bad { background: #f8d7da; color: #721c24; }
+        .bar-bg {
+            background: #e0e6ed;
+            border-radius: 6px;
+            height: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.6s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 0.78em;
+            font-weight: 600;
+            color: white;
+            min-width: 32px;
+        }
+        .bar-correct { background: linear-gradient(90deg, #2d8c2a, #6abf40); }
+        .bar-incorrect { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+        .q-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .q-label { flex: 0 0 200px; font-size: 0.88em; color: #555; }
+        .q-bar { flex: 1; }
+        .q-pct { flex: 0 0 50px; text-align: right; font-weight: 600; font-size: 0.9em; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+        .empty-state p { font-size: 1.1em; margin-bottom: 16px; }
+        .btn-danger {
+            background: #c0392b;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-danger:hover { background: #a93226; }
+        .actions { text-align: right; margin-top: 12px; }
+        @media (max-width: 600px) {
+            .container { padding: 12px; }
+            header { padding: 20px 14px; }
+            .q-label { flex: 0 0 120px; font-size: 0.8em; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>EMM1 - Statistiky</h1>
+            <p>Přehled výsledků testu &bull; Cvičení 5 &bull; CZU</p>
+        </header>
+
+        <div class="nav-links">
+            <a href="index.html">Zpět na test</a>
+        </div>
+
+        <div id="content"></div>
+    </div>
+
+<script>
+const questionLabels = [
+    "Cíl úlohy LP",
+    "Kapacita mlékárny",
+    "Mléko na jahod. jogurt",
+    "Nejvyšší cena za balení",
+    "Podmínka min. jogurtů",
+    "Proměnná d1",
+    "Proměnné d2 a p2",
+    "Penalizace umělé prom.",
+    "Optimální hodnota z",
+    "Vektor báz. řešení",
+    "Kritérium optimality",
+    "Podmínky duálu",
+    "Stínová cena y1",
+    "Věta o dualitě",
+    "Nerovnosti v duálu"
+];
+
+function render() {
+    const history = JSON.parse(localStorage.getItem('emm1_quiz_results') || '[]');
+    const content = document.getElementById('content');
+
+    if (history.length === 0) {
+        content.innerHTML = `
+            <div class="card empty-state">
+                <p>Zatím žádné výsledky.</p>
+                <p>Vraťte se na <a href="index.html" style="color:#4a8c2a;font-weight:600;">test</a> a absolvujte ho.</p>
+            </div>`;
+        return;
+    }
+
+    const totalAttempts = history.length;
+    const avgScore = (history.reduce((s, r) => s + r.pct, 0) / totalAttempts).toFixed(1);
+    const bestScore = Math.max(...history.map(r => r.pct));
+    const lastScore = history[history.length - 1].pct;
+    const passed = history.filter(r => r.pct >= 70).length;
+
+    // Per-question stats
+    const qStats = questionLabels.map((label, qi) => {
+        let correct = 0;
+        let total = 0;
+        history.forEach(r => {
+            if (r.answers && r.answers[qi]) {
+                total++;
+                if (r.answers[qi].correct) correct++;
+            }
+        });
+        return { label, correct, total, pct: total > 0 ? Math.round((correct / total) * 100) : 0 };
+    });
+
+    // Score distribution
+    const dist = { '90-100': 0, '70-89': 0, '50-69': 0, '0-49': 0 };
+    history.forEach(r => {
+        if (r.pct >= 90) dist['90-100']++;
+        else if (r.pct >= 70) dist['70-89']++;
+        else if (r.pct >= 50) dist['50-69']++;
+        else dist['0-49']++;
+    });
+
+    let html = '';
+
+    // Overview cards
+    html += `<div class="card">
+        <h2>Celkový přehled</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-value">${totalAttempts}</div>
+                <div class="stat-label">Počet pokusů</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${avgScore}%</div>
+                <div class="stat-label">Průměrné skóre</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${bestScore}%</div>
+                <div class="stat-label">Nejlepší výsledek</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${lastScore}%</div>
+                <div class="stat-label">Poslední pokus</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${passed}/${totalAttempts}</div>
+                <div class="stat-label">Úspěšných (70%+)</div>
+            </div>
+        </div>
+    </div>`;
+
+    // Score distribution
+    html += `<div class="card">
+        <h2>Rozložení výsledků</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-value" style="color:#2d8c2a">${dist['90-100']}</div>
+                <div class="stat-label">Vynikající (90-100%)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="color:#4a8c2a">${dist['70-89']}</div>
+                <div class="stat-label">Dobře (70-89%)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="color:#e67e22">${dist['50-69']}</div>
+                <div class="stat-label">Průměrně (50-69%)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="color:#c0392b">${dist['0-49']}</div>
+                <div class="stat-label">Nedostatečně (0-49%)</div>
+            </div>
+        </div>
+    </div>`;
+
+    // Progress chart (score over time)
+    html += `<div class="card">
+        <h2>Vývoj skóre v čase</h2>
+        <div class="chart-container">
+            <canvas id="progressChart" height="200"></canvas>
+        </div>
+    </div>`;
+
+    // Per-question success rate
+    html += `<div class="card">
+        <h2>Úspěšnost podle otázek</h2>`;
+    qStats.forEach((qs, i) => {
+        const color = qs.pct >= 70 ? 'bar-correct' : 'bar-incorrect';
+        html += `<div class="q-row">
+            <div class="q-label">${i + 1}. ${qs.label}</div>
+            <div class="q-bar"><div class="bar-bg"><div class="bar-fill ${color}" style="width:${Math.max(qs.pct, 5)}%">${qs.correct}/${qs.total}</div></div></div>
+            <div class="q-pct">${qs.pct}%</div>
+        </div>`;
+    });
+    html += `</div>`;
+
+    // History table
+    html += `<div class="card">
+        <h2>Historie pokusů</h2>
+        <table>
+            <thead><tr><th>#</th><th>Datum</th><th>Skóre</th><th>Procenta</th><th>Hodnocení</th></tr></thead>
+            <tbody>`;
+    history.slice().reverse().forEach((r, i) => {
+        const d = new Date(r.date);
+        const dateStr = d.toLocaleDateString('cs-CZ') + ' ' + d.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+        const badgeClass = r.pct >= 90 ? 'badge-great' : r.pct >= 70 ? 'badge-great' : r.pct >= 50 ? 'badge-ok' : 'badge-bad';
+        const badgeText = r.pct >= 90 ? 'Vynikající' : r.pct >= 70 ? 'Dobře' : r.pct >= 50 ? 'Průměrně' : 'Nedostatečně';
+        html += `<tr>
+            <td>${history.length - i}</td>
+            <td>${dateStr}</td>
+            <td>${r.score}/${r.total}</td>
+            <td>${r.pct}%</td>
+            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+        </tr>`;
+    });
+    html += `</tbody></table>
+        <div class="actions">
+            <button class="btn-danger" onclick="clearHistory()">Smazat historii</button>
+        </div>
+    </div>`;
+
+    content.innerHTML = html;
+    drawChart(history);
+}
+
+function drawChart(history) {
+    const canvas = document.getElementById('progressChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.parentElement.clientWidth;
+    canvas.width = W;
+    canvas.height = 220;
+    const H = 220;
+    const pad = { top: 20, right: 20, bottom: 40, left: 50 };
+    const chartW = W - pad.left - pad.right;
+    const chartH = H - pad.top - pad.bottom;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid lines
+    ctx.strokeStyle = '#e0e6ed';
+    ctx.lineWidth = 1;
+    for (let p = 0; p <= 100; p += 25) {
+        const y = pad.top + chartH - (p / 100) * chartH;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(W - pad.right, y);
+        ctx.stroke();
+        ctx.fillStyle = '#888';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(p + '%', pad.left - 8, y + 4);
+    }
+
+    // 70% threshold line
+    const threshY = pad.top + chartH - (70 / 100) * chartH;
+    ctx.strokeStyle = '#e67e22';
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, threshY);
+    ctx.lineTo(W - pad.right, threshY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#e67e22';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Hranice úspěchu', W - pad.right - 90, threshY - 4);
+
+    if (history.length < 2) {
+        // Single point
+        const x = pad.left + chartW / 2;
+        const y = pad.top + chartH - (history[0].pct / 100) * chartH;
+        ctx.fillStyle = '#4a8c2a';
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(history[0].pct + '%', x, y - 12);
+        ctx.fillStyle = '#888';
+        ctx.font = '11px sans-serif';
+        ctx.fillText('Pokus 1', x, H - 10);
+        return;
+    }
+
+    const n = history.length;
+    const step = chartW / (n - 1);
+
+    // Area fill
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top + chartH);
+    history.forEach((r, i) => {
+        const x = pad.left + i * step;
+        const y = pad.top + chartH - (r.pct / 100) * chartH;
+        ctx.lineTo(x, y);
+    });
+    ctx.lineTo(pad.left + (n - 1) * step, pad.top + chartH);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+    grad.addColorStop(0, 'rgba(74,140,42,0.25)');
+    grad.addColorStop(1, 'rgba(74,140,42,0.02)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.strokeStyle = '#4a8c2a';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    history.forEach((r, i) => {
+        const x = pad.left + i * step;
+        const y = pad.top + chartH - (r.pct / 100) * chartH;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Points
+    history.forEach((r, i) => {
+        const x = pad.left + i * step;
+        const y = pad.top + chartH - (r.pct / 100) * chartH;
+        ctx.fillStyle = r.pct >= 70 ? '#2d8c2a' : '#c0392b';
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(x, y, 2, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // X-axis labels
+    ctx.fillStyle = '#888';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    const maxLabels = Math.min(n, 15);
+    const labelStep = Math.max(1, Math.floor(n / maxLabels));
+    for (let i = 0; i < n; i += labelStep) {
+        const x = pad.left + i * step;
+        ctx.fillText(`#${i + 1}`, x, H - 10);
+    }
+    if ((n - 1) % labelStep !== 0) {
+        ctx.fillText(`#${n}`, pad.left + (n - 1) * step, H - 10);
+    }
+}
+
+function clearHistory() {
+    if (confirm('Opravdu smazat celou historii výsledků?')) {
+        localStorage.removeItem('emm1_quiz_results');
+        render();
+    }
+}
+
+render();
+window.addEventListener('resize', () => {
+    const history = JSON.parse(localStorage.getItem('emm1_quiz_results') || '[]');
+    if (history.length > 0) drawChart(history);
+});
+</script>
+</body>
+</html>
